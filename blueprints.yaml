@@ -1,0 +1,33 @@
+name: Header Footer Code
+slug: header-footer-code
+type: plugin
+version: 1.0.0
+description: Manage sitewide HTML, CSS, and JS snippets for header/footer (front-end and Admin Next)
+icon: code
+author:
+  name: Intention
+  email: admin@fcswebsites.co.uk
+homepage: https://github.com/getgrav/grav
+keywords: grav, plugin, header, footer, snippets, html, css, javascript, admin2
+license: MIT
+
+compatibility:
+  grav: ['2.0']
+
+dependencies:
+  - { name: grav, version: '>=2.0.0' }
+  - { name: api, version: '>=1.0.0' }
+
+form:
+  validation: loose
+  fields:
+    enabled:
+      type: toggle
+      label: PLUGIN_ADMIN.PLUGIN_STATUS
+      highlight: 1
+      default: 1
+      options:
+        1: PLUGIN_ADMIN.ENABLED
+        0: PLUGIN_ADMIN.DISABLED
+      validate:
+        type: bool

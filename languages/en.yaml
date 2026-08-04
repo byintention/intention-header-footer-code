@@ -1,0 +1,5 @@
+PLUGIN_HEADER_FOOTER_CODE:
+  TITLE: Header Footer Code
+  SIDEBAR: Header Footer Code
+  WARNING: Snippets run as-is. Only add trusted HTML, CSS, and JavaScript.
+  CSS_LOCATION_HELP: CSS is always injected in the document head (footer location is ignored for CSS).

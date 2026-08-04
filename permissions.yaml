@@ -1,0 +1,8 @@
+actions:
+  admin.header-footer-code:
+    label: Header Footer Code
+    actions:
+      read:
+        label: Read Access
+      write:
+        label: Write Access
