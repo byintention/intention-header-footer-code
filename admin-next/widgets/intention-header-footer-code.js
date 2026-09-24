@@ -5,7 +5,8 @@
  * showFab:false it may never mount the custom element. Run injection at
  * module load so backend snippets still apply.
  */
-const TAG = window.__GRAV_WIDGET_TAG || 'grav-header-footer-code--widget';
+const TAG = window.__GRAV_WIDGET_TAG || 'grav-intention-header-footer-code--widget';
+const MARKER_COMMENT = 'Added by Intention Header Footer Code plugin';
 
 function apiBase() {
     return (window.__GRAV_API_SERVER_URL || '') + (window.__GRAV_API_PREFIX || '/api/v1');
@@ -16,6 +17,11 @@ function apiHeaders() {
     const token = window.__GRAV_API_TOKEN;
     if (token) headers['X-API-Token'] = token;
     return headers;
+}
+
+function appendWithMarker(target, node) {
+    target.appendChild(document.createComment(MARKER_COMMENT));
+    target.appendChild(node);
 }
 
 async function injectBackendSnippets() {
@@ -32,7 +38,7 @@ async function injectBackendSnippets() {
     window.__HFC_BACKEND_INJECTED__ = true;
 
     try {
-        const res = await fetch(apiBase() + '/header-footer-code/active?target=backend', {
+        const res = await fetch(apiBase() + '/intention-header-footer-code/active?target=backend', {
             headers: apiHeaders(),
         });
         if (!res.ok) return;
@@ -42,7 +48,7 @@ async function injectBackendSnippets() {
             applySnippet(snippet);
         }
     } catch (err) {
-        console.warn('[header-footer-code] backend inject failed', err);
+        console.warn('[intention-header-footer-code] backend inject failed', err);
         window.__HFC_BACKEND_INJECTED__ = false;
     }
 }
@@ -53,12 +59,15 @@ function applySnippet(snippet) {
 
     const location = snippet.location === 'footer' ? 'footer' : 'header';
     const type = snippet.type;
+    const target = (type === 'css' || location === 'header')
+        ? document.head
+        : (document.body || document.documentElement);
 
     if (type === 'css') {
         const style = document.createElement('style');
         style.setAttribute('data-hfc-id', snippet.id);
         style.textContent = code;
-        document.head.appendChild(style);
+        appendWithMarker(target, style);
         return;
     }
 
@@ -68,11 +77,7 @@ function applySnippet(snippet) {
         if (snippet.async) script.async = true;
         if (snippet.defer) script.defer = true;
         script.text = code;
-        if (location === 'footer') {
-            (document.body || document.documentElement).appendChild(script);
-        } else {
-            document.head.appendChild(script);
-        }
+        appendWithMarker(target, script);
         return;
     }
 
@@ -80,9 +85,8 @@ function applySnippet(snippet) {
         const tpl = document.createElement('template');
         tpl.innerHTML = code;
         const nodes = Array.from(tpl.content.childNodes);
-        const target = location === 'footer'
-            ? (document.body || document.documentElement)
-            : document.head;
+        // One marker above the whole HTML snippet group.
+        target.appendChild(document.createComment(MARKER_COMMENT));
         for (const node of nodes) {
             if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'SCRIPT') {
                 const script = document.createElement('script');
@@ -98,7 +102,7 @@ function applySnippet(snippet) {
     }
 }
 
-class HeaderFooterCodeInjector extends HTMLElement {
+class IntentionHeaderFooterCodeInjector extends HTMLElement {
     connectedCallback() {
         this.style.display = 'none';
         injectBackendSnippets();
@@ -106,7 +110,7 @@ class HeaderFooterCodeInjector extends HTMLElement {
 }
 
 if (!customElements.get(TAG)) {
-    customElements.define(TAG, HeaderFooterCodeInjector);
+    customElements.define(TAG, IntentionHeaderFooterCodeInjector);
 }
 
 // Kick off as soon as the autoLoad module is evaluated.

@@ -22,7 +22,7 @@ Use the **narrowest** match: if the task is API-only, use `grav-api-integration`
 
 1. List and read applicable skill(s) in full before writing code.
 2. Follow that skill's steps (analyze → implement → test; Section K config audit when admin UI is involved).
-3. Keep changes in this plugin directory per [scope-header-footer-code.mdc](scope-header-footer-code.mdc).
+3. Keep changes in this plugin directory per [scope-intention-header-footer-code.mdc](scope-intention-header-footer-code.mdc).
 
 ## Related rules
 

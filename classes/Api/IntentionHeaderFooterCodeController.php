@@ -2,22 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Grav\Plugin\HeaderFooterCode\Api;
+namespace Grav\Plugin\IntentionHeaderFooterCode\Api;
 
 use Grav\Plugin\Api\Controllers\AbstractApiController;
 use Grav\Plugin\Api\Exceptions\ValidationException;
 use Grav\Plugin\Api\Response\ApiResponse;
-use Grav\Plugin\HeaderFooterCode\SnippetRepository;
+use Grav\Plugin\IntentionHeaderFooterCode\SnippetRepository;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class HeaderFooterCodeController extends AbstractApiController
+class IntentionHeaderFooterCodeController extends AbstractApiController
 {
-    private const PERM_READ = 'admin.header-footer-code.read';
-    private const PERM_WRITE = 'admin.header-footer-code.write';
+    private const PERM_READ = 'admin.intention-header-footer-code.read';
+    private const PERM_WRITE = 'admin.intention-header-footer-code.write';
 
     /**
-     * GET /header-footer-code/snippets
+     * GET /intention-header-footer-code/snippets
      */
     public function index(ServerRequestInterface $request): ResponseInterface
     {
@@ -29,7 +29,7 @@ class HeaderFooterCodeController extends AbstractApiController
     }
 
     /**
-     * POST /header-footer-code/snippets
+     * POST /intention-header-footer-code/snippets
      */
     public function create(ServerRequestInterface $request): ResponseInterface
     {
@@ -40,12 +40,12 @@ class HeaderFooterCodeController extends AbstractApiController
 
         return ApiResponse::created(
             $snippet,
-            $this->getApiBaseUrl() . '/header-footer-code/snippets/' . $snippet['id'],
+            $this->getApiBaseUrl() . '/intention-header-footer-code/snippets/' . $snippet['id'],
         );
     }
 
     /**
-     * GET /header-footer-code/snippets/{id}
+     * GET /intention-header-footer-code/snippets/{id}
      */
     public function show(ServerRequestInterface $request): ResponseInterface
     {
@@ -58,7 +58,7 @@ class HeaderFooterCodeController extends AbstractApiController
     }
 
     /**
-     * PATCH /header-footer-code/snippets/{id}
+     * PATCH /intention-header-footer-code/snippets/{id}
      */
     public function update(ServerRequestInterface $request): ResponseInterface
     {
@@ -72,7 +72,7 @@ class HeaderFooterCodeController extends AbstractApiController
     }
 
     /**
-     * DELETE /header-footer-code/snippets/{id}
+     * DELETE /intention-header-footer-code/snippets/{id}
      */
     public function delete(ServerRequestInterface $request): ResponseInterface
     {
@@ -85,7 +85,7 @@ class HeaderFooterCodeController extends AbstractApiController
     }
 
     /**
-     * GET /header-footer-code/active?target=frontend|backend
+     * GET /intention-header-footer-code/active?target=frontend|backend
      */
     public function active(ServerRequestInterface $request): ResponseInterface
     {

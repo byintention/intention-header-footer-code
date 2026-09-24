@@ -8,11 +8,11 @@ use Composer\Autoload\ClassLoader;
 use Grav\Common\Plugin;
 use Grav\Events\PermissionsRegisterEvent;
 use Grav\Framework\Acl\PermissionsReader;
-use Grav\Plugin\HeaderFooterCode\SnippetInjector;
-use Grav\Plugin\HeaderFooterCode\SnippetRepository;
+use Grav\Plugin\IntentionHeaderFooterCode\SnippetInjector;
+use Grav\Plugin\IntentionHeaderFooterCode\SnippetRepository;
 use RocketTheme\Toolbox\Event\Event;
 
-class HeaderFooterCodePlugin extends Plugin
+class IntentionHeaderFooterCodePlugin extends Plugin
 {
     public static function getSubscribedEvents(): array
     {
@@ -24,7 +24,7 @@ class HeaderFooterCodePlugin extends Plugin
     public function autoload(): ClassLoader
     {
         $loader = new ClassLoader();
-        $loader->addPsr4('Grav\\Plugin\\HeaderFooterCode\\', __DIR__ . '/classes');
+        $loader->addPsr4('Grav\\Plugin\\IntentionHeaderFooterCode\\', __DIR__ . '/classes');
         $loader->register();
 
         return $loader;
@@ -58,40 +58,44 @@ class HeaderFooterCodePlugin extends Plugin
     public function onApiRegisterRoutes(Event $event): void
     {
         $routes = $event['routes'];
-        $controller = \Grav\Plugin\HeaderFooterCode\Api\HeaderFooterCodeController::class;
+        $controller = \Grav\Plugin\IntentionHeaderFooterCode\Api\IntentionHeaderFooterCodeController::class;
 
-        $routes->get('/header-footer-code/active', [$controller, 'active']);
-        $routes->get('/header-footer-code/snippets', [$controller, 'index']);
-        $routes->post('/header-footer-code/snippets', [$controller, 'create']);
-        $routes->get('/header-footer-code/snippets/{id}', [$controller, 'show']);
-        $routes->patch('/header-footer-code/snippets/{id}', [$controller, 'update']);
-        $routes->delete('/header-footer-code/snippets/{id}', [$controller, 'delete']);
+        $routes->get('/intention-header-footer-code/active', [$controller, 'active']);
+        $routes->get('/intention-header-footer-code/snippets', [$controller, 'index']);
+        $routes->post('/intention-header-footer-code/snippets', [$controller, 'create']);
+        $routes->get('/intention-header-footer-code/snippets/{id}', [$controller, 'show']);
+        $routes->patch('/intention-header-footer-code/snippets/{id}', [$controller, 'update']);
+        $routes->delete('/intention-header-footer-code/snippets/{id}', [$controller, 'delete']);
     }
 
     public function onApiSidebarItems(Event $event): void
     {
+        if (!$this->config->get('plugins.intention-header-footer-code.enabled', true)) {
+            return;
+        }
+
         $items = $event['items'] ?? [];
         $items[] = [
-            'id' => 'header-footer-code',
-            'plugin' => 'header-footer-code',
-            'label' => 'PLUGIN_HEADER_FOOTER_CODE.SIDEBAR',
+            'id' => 'intention-header-footer-code',
+            'plugin' => 'intention-header-footer-code',
+            'label' => 'PLUGIN_INTENTION_HEADER_FOOTER_CODE.SIDEBAR',
             'icon' => 'fa-code',
-            'route' => '/plugin/header-footer-code',
+            'route' => '/plugin/intention-header-footer-code',
             'priority' => 25,
-            'authorize' => 'admin.header-footer-code.read',
+            'authorize' => 'admin.intention-header-footer-code.read',
         ];
         $event['items'] = $items;
     }
 
     public function onApiPluginPageInfo(Event $event): void
     {
-        if (($event['plugin'] ?? null) !== 'header-footer-code') {
+        if (($event['plugin'] ?? null) !== 'intention-header-footer-code') {
             return;
         }
 
         $event['definition'] = [
-            'id' => 'header-footer-code',
-            'plugin' => 'header-footer-code',
+            'id' => 'intention-header-footer-code',
+            'plugin' => 'intention-header-footer-code',
             'title' => 'Header Footer Code',
             'icon' => 'fa-code',
             'page_type' => 'component',
@@ -102,8 +106,8 @@ class HeaderFooterCodePlugin extends Plugin
     {
         $widgets = $event['widgets'] ?? [];
         $widgets[] = [
-            'id' => 'header-footer-code-injector',
-            'plugin' => 'header-footer-code',
+            'id' => 'intention-header-footer-code-injector',
+            'plugin' => 'intention-header-footer-code',
             'label' => 'Header Footer Code Injector',
             'icon' => 'code',
             'priority' => 0,

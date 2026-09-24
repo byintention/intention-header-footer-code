@@ -1,6 +1,6 @@
 actions:
-  admin.header-footer-code:
-    label: Header Footer Code
+  admin.intention-header-footer-code:
+    label: Intention Header Footer Code
     actions:
       read:
         label: Read Access

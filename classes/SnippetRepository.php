@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Grav\Plugin\HeaderFooterCode;
+namespace Grav\Plugin\IntentionHeaderFooterCode;
 
 use Grav\Common\Grav;
 use Grav\Common\Yaml;
@@ -10,7 +10,7 @@ use Grav\Plugin\Api\Exceptions\NotFoundException;
 use Grav\Plugin\Api\Exceptions\ValidationException;
 
 /**
- * Load and persist HFCM-style snippets under user/data/header-footer-code/.
+ * Load and persist HFCM-style snippets under user/data/intention-header-footer-code/.
  */
 class SnippetRepository
 {
@@ -28,7 +28,7 @@ class SnippetRepository
         }
 
         $userDir = defined('USER_DIR') ? rtrim(USER_DIR, '/') : rtrim(Grav::instance()['locator']->findResource('user://', true, true) ?: '', '/');
-        $this->filePath = $userDir . '/data/header-footer-code/snippets.yaml';
+        $this->filePath = $userDir . '/data/intention-header-footer-code/snippets.yaml';
     }
 
     /**

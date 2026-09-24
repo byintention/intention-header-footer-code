@@ -1,5 +1,5 @@
-name: Header Footer Code
-slug: header-footer-code
+name: Intention Header Footer Code
+slug: intention-header-footer-code
 type: plugin
 version: 1.0.0
 description: Manage sitewide HTML, CSS, and JS snippets for header/footer (front-end and Admin Next)

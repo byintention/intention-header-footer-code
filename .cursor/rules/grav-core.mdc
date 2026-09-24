@@ -22,7 +22,7 @@ If a fix seems to require a core change, stop and use a **user-layer** approach 
 
 ## Plugin patterns
 
-- **Behavior** → `header-footer-code.php`, `classes/`, API controllers, injectors
+- **Behavior** → `intention-header-footer-code.php`, `classes/`, API controllers, injectors
 - **Admin Next UI** → `admin-next/pages/`, `admin-next/widgets/`
 - **Admin forms / plugin settings** → `blueprints.yaml`
 - **Presentation (admin)** → `assets/admin/`

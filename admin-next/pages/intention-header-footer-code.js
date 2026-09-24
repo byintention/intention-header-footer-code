@@ -2,7 +2,7 @@
  * Header Footer Code — Admin Next page (list + edit).
  * Tag: window.__GRAV_PAGE_TAG
  */
-const TAG = window.__GRAV_PAGE_TAG || 'grav-header-footer-code--page';
+const TAG = window.__GRAV_PAGE_TAG || 'grav-intention-header-footer-code--page';
 
 const TYPES = [
     { value: 'html', label: 'HTML' },
@@ -58,7 +58,7 @@ function emptyForm() {
     };
 }
 
-class HeaderFooterCodePage extends HTMLElement {
+class IntentionHeaderFooterCodePage extends HTMLElement {
     constructor() {
         super();
         this._view = 'list'; // list | edit
@@ -68,8 +68,7 @@ class HeaderFooterCodePage extends HTMLElement {
         this._error = '';
         this._loading = true;
         this._saving = false;
-        this._cmView = null;
-        this._cmModule = null;
+        this._hljsPromise = null;
     }
 
     connectedCallback() {
@@ -81,13 +80,42 @@ class HeaderFooterCodePage extends HTMLElement {
         this._destroyEditor();
     }
 
+    _assetUrl(path) {
+        const base = (window.__GRAV_API_SERVER_URL || '').replace(/\/$/, '');
+        return `${base}/user/plugins/intention-header-footer-code/assets/admin/${path}`;
+    }
+
     _ensureStyles() {
         if (document.getElementById('hfc-admin-css')) return;
         const link = document.createElement('link');
         link.id = 'hfc-admin-css';
         link.rel = 'stylesheet';
-        link.href = (window.__GRAV_API_SERVER_URL || '') + '/user/plugins/header-footer-code/assets/admin/page.css';
+        link.href = this._assetUrl('page.css');
         document.head.appendChild(link);
+    }
+
+    _ensureHljs() {
+        if (window.hljs) {
+            return Promise.resolve(window.hljs);
+        }
+        if (this._hljsPromise) {
+            return this._hljsPromise;
+        }
+        this._hljsPromise = new Promise((resolve, reject) => {
+            const existing = document.getElementById('hfc-highlight-js');
+            if (existing) {
+                existing.addEventListener('load', () => resolve(window.hljs));
+                existing.addEventListener('error', () => reject(new Error('Failed to load highlight.js')));
+                return;
+            }
+            const script = document.createElement('script');
+            script.id = 'hfc-highlight-js';
+            script.src = this._assetUrl('highlight.min.js');
+            script.onload = () => resolve(window.hljs);
+            script.onerror = () => reject(new Error('Failed to load highlight.js'));
+            document.head.appendChild(script);
+        });
+        return this._hljsPromise;
     }
 
     async _loadList() {
@@ -95,7 +123,7 @@ class HeaderFooterCodePage extends HTMLElement {
         this._error = '';
         this._render();
         try {
-            const data = await api('/header-footer-code/snippets');
+            const data = await api('/intention-header-footer-code/snippets');
             this._snippets = data?.snippets || [];
             this._view = 'list';
         } catch (err) {
@@ -108,7 +136,7 @@ class HeaderFooterCodePage extends HTMLElement {
 
     async _toggleEnabled(id, enabled) {
         try {
-            const updated = await api(`/header-footer-code/snippets/${encodeURIComponent(id)}`, {
+            const updated = await api(`/intention-header-footer-code/snippets/${encodeURIComponent(id)}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ enabled }),
@@ -133,7 +161,7 @@ class HeaderFooterCodePage extends HTMLElement {
         if (!ok) return;
 
         try {
-            await api(`/header-footer-code/snippets/${encodeURIComponent(id)}`, { method: 'DELETE' });
+            await api(`/intention-header-footer-code/snippets/${encodeURIComponent(id)}`, { method: 'DELETE' });
             this._snippets = this._snippets.filter((s) => s.id !== id);
             this._status = 'Snippet deleted.';
             this._render();
@@ -189,12 +217,7 @@ class HeaderFooterCodePage extends HTMLElement {
         const enabled = !!this.querySelector('#hfc-enabled')?.checked;
         const defer = !!this.querySelector('#hfc-defer')?.checked;
         const asyncAttr = !!this.querySelector('#hfc-async')?.checked;
-        let code = this._form.code;
-        if (this._cmView) {
-            code = this._cmView.state.doc.toString();
-        } else {
-            code = this.querySelector('#hfc-code')?.value ?? code;
-        }
+        const code = this.querySelector('#hfc-code')?.value ?? this._form.code;
         this._form = {
             ...this._form,
             title,
@@ -237,13 +260,13 @@ class HeaderFooterCodePage extends HTMLElement {
         try {
             let saved;
             if (this._form.id) {
-                saved = await api(`/header-footer-code/snippets/${encodeURIComponent(this._form.id)}`, {
+                saved = await api(`/intention-header-footer-code/snippets/${encodeURIComponent(this._form.id)}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
                 });
             } else {
-                saved = await api('/header-footer-code/snippets', {
+                saved = await api('/intention-header-footer-code/snippets', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
@@ -267,75 +290,92 @@ class HeaderFooterCodePage extends HTMLElement {
         requestAnimationFrame(() => this._mountEditor());
     }
 
+    _hlLanguage(type) {
+        if (type === 'css') return 'css';
+        if (type === 'js') return 'javascript';
+        return null;
+    }
+
     async _mountEditor() {
         const host = this.querySelector('#hfc-editor-host');
         if (!host || this._view !== 'edit') return;
 
+        this._destroyEditor();
+        host.innerHTML = '';
+
+        const language = this._hlLanguage(this._form.type);
+        if (!language) {
+            this._mountPlainTextarea(host);
+            return;
+        }
+
         try {
-            if (!this._cmModule) {
-                const [
-                    { basicSetup, EditorView },
-                    { EditorState },
-                    { css },
-                    { html },
-                    { javascript },
-                ] = await Promise.all([
-                    import('https://esm.sh/codemirror@6'),
-                    import('https://esm.sh/@codemirror/state@6'),
-                    import('https://esm.sh/@codemirror/lang-css@6'),
-                    import('https://esm.sh/@codemirror/lang-html@6'),
-                    import('https://esm.sh/@codemirror/lang-javascript@6'),
-                ]);
-                this._cmModule = { basicSetup, EditorView, EditorState, css, html, javascript };
-            }
-
-            const { basicSetup, EditorView, EditorState, css, html, javascript } = this._cmModule;
-            const lang = this._form.type === 'css'
-                ? css()
-                : this._form.type === 'js'
-                    ? javascript()
-                    : html();
-
-            this._destroyEditor();
-            host.innerHTML = '';
-            this._cmView = new EditorView({
-                parent: host,
-                state: EditorState.create({
-                    doc: this._form.code || '',
-                    extensions: [
-                        basicSetup,
-                        lang,
-                        EditorView.theme({
-                            '&': { minHeight: '280px', fontSize: '13px' },
-                            '.cm-scroller': { overflow: 'auto', minHeight: '280px' },
-                        }),
-                        EditorView.updateListener.of((update) => {
-                            if (update.docChanged) {
-                                this._form.code = update.state.doc.toString();
-                            }
-                        }),
-                    ],
-                }),
-            });
+            const hljs = await this._ensureHljs();
+            if (!host.isConnected || this._view !== 'edit') return;
+            this._mountHighlightEditor(host, hljs, language);
         } catch (err) {
-            console.warn('[header-footer-code] CodeMirror failed, using textarea', err);
-            host.innerHTML = '';
-            const ta = document.createElement('textarea');
-            ta.id = 'hfc-code';
-            ta.className = 'hfc-textarea';
-            ta.value = this._form.code || '';
-            ta.addEventListener('input', () => {
-                this._form.code = ta.value;
-            });
-            host.appendChild(ta);
+            console.warn('[intention-header-footer-code] highlight.js failed, using textarea', err);
+            this._mountPlainTextarea(host);
         }
     }
 
+    _mountPlainTextarea(host) {
+        const ta = document.createElement('textarea');
+        ta.id = 'hfc-code';
+        ta.className = 'hfc-textarea';
+        ta.spellcheck = false;
+        ta.value = this._form.code || '';
+        ta.addEventListener('input', () => {
+            this._form.code = ta.value;
+        });
+        host.appendChild(ta);
+    }
+
+    _mountHighlightEditor(host, hljs, language) {
+        const wrap = document.createElement('div');
+        wrap.className = 'hfc-hl-wrap';
+
+        const pre = document.createElement('pre');
+        pre.className = 'hfc-hl-pre';
+        pre.setAttribute('aria-hidden', 'true');
+
+        const codeEl = document.createElement('code');
+        codeEl.className = `language-${language} hljs`;
+        pre.appendChild(codeEl);
+
+        const ta = document.createElement('textarea');
+        ta.id = 'hfc-code';
+        ta.className = 'hfc-hl-textarea';
+        ta.spellcheck = false;
+        ta.value = this._form.code || '';
+
+        const paint = () => {
+            const value = ta.value;
+            this._form.code = value;
+            try {
+                const result = hljs.highlight(value, { language, ignoreIllegals: true });
+                // Trailing newline keeps pre height in sync with the textarea.
+                codeEl.innerHTML = result.value + (value.endsWith('\n') ? '\n' : '');
+            } catch {
+                codeEl.textContent = value;
+            }
+        };
+
+        ta.addEventListener('input', paint);
+        ta.addEventListener('scroll', () => {
+            pre.scrollTop = ta.scrollTop;
+            pre.scrollLeft = ta.scrollLeft;
+        });
+
+        wrap.appendChild(pre);
+        wrap.appendChild(ta);
+        host.appendChild(wrap);
+        paint();
+    }
+
     _destroyEditor() {
-        if (this._cmView) {
-            this._cmView.destroy();
-            this._cmView = null;
-        }
+        const host = this.querySelector('#hfc-editor-host');
+        if (host) host.innerHTML = '';
     }
 
     _onTypeChange() {
@@ -526,4 +566,4 @@ class HeaderFooterCodePage extends HTMLElement {
     }
 }
 
-customElements.define(TAG, HeaderFooterCodePage);
+customElements.define(TAG, IntentionHeaderFooterCodePage);

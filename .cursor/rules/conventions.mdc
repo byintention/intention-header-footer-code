@@ -1,9 +1,9 @@
 ---
-description: Header Footer Code conventions — snippets, injection, Admin Next UI
+description: Intention Header Footer Code conventions — snippets, injection, Admin Next UI
 alwaysApply: true
 ---
 
-# Header Footer Code conventions
+# Intention Header Footer Code conventions
 
 ## Purpose
 
@@ -13,29 +13,36 @@ HFCM-style sitewide HTML / CSS / JS snippets for Grav 2 Admin Next: list + edit 
 
 | Path | Purpose |
 |------|---------|
-| `header-footer-code.php` | Events: API routes, sidebar, plugin page, floating widget, front inject |
-| `classes/SnippetRepository.php` | YAML CRUD under `user/data/header-footer-code/snippets.yaml` (runtime data — do not commit site data from this repo) |
+| `intention-header-footer-code.php` | Events: API routes, sidebar, plugin page, floating widget, front inject |
+| `classes/SnippetRepository.php` | YAML CRUD under `user/data/intention-header-footer-code/snippets.yaml` (runtime data — do not commit site data from this repo) |
 | `classes/SnippetInjector.php` | Front-end Asset Manager + HTML output injection |
-| `classes/Api/HeaderFooterCodeController.php` | REST CRUD + `/active` |
-| `admin-next/pages/header-footer-code.js` | List + edit Admin Next page (CodeMirror) |
-| `admin-next/widgets/header-footer-code.js` | autoLoad backend injector (`showFab: false`) |
+| `classes/Api/IntentionHeaderFooterCodeController.php` | REST CRUD + `/active` |
+| `admin-next/pages/intention-header-footer-code.js` | List + edit Admin Next page |
+| `admin-next/widgets/intention-header-footer-code.js` | autoLoad backend injector (`showFab: false`) |
 | `assets/admin/page.css` | Admin list/edit styles (lazy-linked by page JS) |
+| `assets/admin/highlight.min.js` | highlight.js (CSS + JavaScript langs) for code fields |
 
 ## CSS
 
 Keep admin styles in `assets/admin/page.css`. Prefer `hfc-*` class names with single hyphens (no BEM `__` / `--`). Do not add inline `<style>` in JS unless the user asks.
 
+## Code editor
+
+- **CSS / JS** types: overlay textarea + `highlight.min.js` (`language-css` / `language-javascript`).
+- **HTML** type: plain textarea (bundle has no HTML/XML language).
+- Load highlight via script tag from `assets/admin/highlight.min.js` — do not use CDN CodeMirror.
+
 ## Injection rules
 
-- **Frontend:** `onAssetsInitialized` (CSS/JS) + `onOutputGenerated` (HTML). Skip admin and API routes.
-- **Backend:** floating widget with `autoLoad: true`, `showFab: false`; inject at module load (Admin2 may not mount the element when FAB is hidden).
+- **Frontend:** `onOutputGenerated` injects CSS/JS/HTML with `<!-- Added by Intention Header Footer Code plugin -->` above each block. Skip admin and API routes.
+- **Backend:** floating widget with `autoLoad: true`, `showFab: false`; inject at module load with the same HTML comment marker (Admin2 may not mount the element when FAB is hidden).
 - CSS always goes in `<head>` even if location is footer (document in UI help text).
 - No PHP snippet type. Snippets run as-is — keep the UI warning.
 
 ## Admin Next
 
-- Sidebar route: `/plugin/header-footer-code`
-- Permissions: `admin.header-footer-code.read` / `.write`
+- Sidebar route: `/plugin/intention-header-footer-code`
+- Permissions: `admin.intention-header-footer-code.read` / `.write`
 - Delete confirms via `window.__GRAV_DIALOGS` — never native `confirm()`
 - API auth header: `X-API-Token`
 

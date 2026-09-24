@@ -1,4 +1,4 @@
-# Header Footer Code — agent guide
+# Intention Header Footer Code — agent guide
 
 Grav **2.x** Admin Next HFCM-style snippet manager. Workspace root is this directory only.
 
@@ -8,7 +8,7 @@ Grav **2.x** Admin Next HFCM-style snippet manager. Workspace root is this direc
 - Do **not** change `user/config/`, `user/pages/`, themes, other plugins, or parent Grav site `.cursor/`.
 - Plugin enablement, site config, and snippet data under `user/data/`: **describe steps for the user**; do not apply them here.
 
-See [`.cursor/rules/scope-header-footer-code.mdc`](.cursor/rules/scope-header-footer-code.mdc).
+See [`.cursor/rules/scope-intention-header-footer-code.mdc`](.cursor/rules/scope-intention-header-footer-code.mdc).
 
 ## Skills
 
@@ -23,24 +23,25 @@ Before implementation that touches API routes, Admin2, or `admin-next/`, read [`
 
 Sitewide HTML / CSS / JS inserts with:
 
-- Admin Next sidebar + list/edit page (CodeMirror)
+- Admin Next sidebar + list/edit page (highlight.js for CSS/JS code fields)
 - Enable/disable per snippet
 - Target: frontend, backend (Admin SPA), or both
 - Location: header / footer (CSS always head)
 - Optional JS `defer` / `async`
 
-Runtime data path (not in this repo): `user/data/header-footer-code/snippets.yaml`.
+Runtime data path (not in this repo): `user/data/intention-header-footer-code/snippets.yaml`.
 
 ## Layout
 
 | Path | Role |
 |------|------|
-| [`header-footer-code.php`](header-footer-code.php) | Events |
+| [`intention-header-footer-code.php`](intention-header-footer-code.php) | Events |
 | [`classes/SnippetRepository.php`](classes/SnippetRepository.php) | YAML persistence |
 | [`classes/SnippetInjector.php`](classes/SnippetInjector.php) | Front-end inject |
-| [`classes/Api/HeaderFooterCodeController.php`](classes/Api/HeaderFooterCodeController.php) | CRUD + `/active` |
-| [`admin-next/pages/header-footer-code.js`](admin-next/pages/header-footer-code.js) | List/edit UI |
-| [`admin-next/widgets/header-footer-code.js`](admin-next/widgets/header-footer-code.js) | Backend autoLoad injector |
+| [`classes/Api/IntentionHeaderFooterCodeController.php`](classes/Api/IntentionHeaderFooterCodeController.php) | CRUD + `/active` |
+| [`admin-next/pages/intention-header-footer-code.js`](admin-next/pages/intention-header-footer-code.js) | List/edit UI |
+| [`assets/admin/highlight.min.js`](assets/admin/highlight.min.js) | highlight.js for CSS/JS code fields |
+| [`admin-next/widgets/intention-header-footer-code.js`](admin-next/widgets/intention-header-footer-code.js) | Backend autoLoad injector |
 | [`assets/admin/page.css`](assets/admin/page.css) | Admin styles |
 
 ## Conventions
@@ -53,7 +54,7 @@ After completing a task, prepend two lines to [`.cursor/notes/changelog.md`](.cu
 
 ## Out of scope here
 
-Site plugin enablement (`user/config/plugins/header-footer-code.yaml`), snippet YAML under `user/data/`, and theme chrome belong in the **Grav site** workspace or Admin UI — not this repo.
+Site plugin enablement (`user/config/plugins/intention-header-footer-code.yaml`), snippet YAML under `user/data/`, and theme chrome belong in the **Grav site** workspace or Admin UI — not this repo.
 
 ## Out of scope (product v1)
 

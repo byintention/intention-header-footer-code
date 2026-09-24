@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Grav\Plugin\HeaderFooterCode;
+namespace Grav\Plugin\IntentionHeaderFooterCode;
 
-use Grav\Common\Assets;
 use Grav\Common\Grav;
 
 /**
@@ -12,6 +11,8 @@ use Grav\Common\Grav;
  */
 class SnippetInjector
 {
+    public const MARKER_COMMENT = '<!-- Added by Intention Header Footer Code plugin -->';
+
     public function __construct(
         private readonly SnippetRepository $repository,
         private readonly Grav $grav,
@@ -19,59 +20,38 @@ class SnippetInjector
     }
 
     /**
-     * Register CSS/JS via the Asset Manager.
+     * @deprecated Assets are injected via onOutputGenerated so HTML marker comments
+     *             can sit above every block. Kept for call-site compatibility.
      */
     public function registerAssets(): void
     {
-        /** @var Assets $assets */
-        $assets = $this->grav['assets'];
-
-        foreach ($this->repository->activeForTarget('frontend') as $snippet) {
-            $code = trim((string) $snippet['code']);
-            if ($code === '') {
-                continue;
-            }
-
-            $type = $snippet['type'];
-            if ($type === 'css') {
-                $assets->addInlineCss($code, ['priority' => 50]);
-                continue;
-            }
-
-            if ($type === 'js') {
-                $options = [
-                    'group' => $snippet['location'] === 'footer' ? 'bottom' : 'head',
-                    'priority' => 50,
-                ];
-                $loading = $this->loadingAttr((bool) $snippet['defer'], (bool) $snippet['async']);
-                if ($loading !== null) {
-                    $options['loading'] = $loading;
-                }
-                $assets->addInlineJs($code, $options);
-            }
-        }
+        // Intentionally empty — see injectIntoOutput().
     }
 
     /**
-     * Inject HTML snippets before </head> / </body>.
+     * Inject CSS, JS, and HTML snippets with a marker comment above each block.
      */
     public function injectHtmlIntoOutput(string $html): string
+    {
+        return $this->injectIntoOutput($html);
+    }
+
+    public function injectIntoOutput(string $html): string
     {
         $header = '';
         $footer = '';
 
         foreach ($this->repository->activeForTarget('frontend') as $snippet) {
-            if ($snippet['type'] !== 'html') {
+            $block = $this->renderBlock($snippet);
+            if ($block === null) {
                 continue;
             }
-            $code = (string) $snippet['code'];
-            if (trim($code) === '') {
-                continue;
-            }
-            if ($snippet['location'] === 'footer') {
-                $footer .= "\n" . $code . "\n";
+
+            if ($snippet['type'] === 'css' || $snippet['location'] !== 'footer') {
+                // CSS always goes in head (even when location is footer).
+                $header .= $block;
             } else {
-                $header .= "\n" . $code . "\n";
+                $footer .= $block;
             }
         }
 
@@ -85,7 +65,37 @@ class SnippetInjector
         return $html;
     }
 
-    private function loadingAttr(bool $defer, bool $async): ?string
+    /**
+     * @param array<string, mixed> $snippet
+     */
+    private function renderBlock(array $snippet): ?string
+    {
+        $code = (string) $snippet['code'];
+        if (trim($code) === '') {
+            return null;
+        }
+
+        $marker = self::MARKER_COMMENT;
+        $type = $snippet['type'];
+
+        if ($type === 'css') {
+            return "\n{$marker}\n<style>\n{$code}\n</style>\n";
+        }
+
+        if ($type === 'js') {
+            $attrs = $this->scriptAttributes((bool) $snippet['defer'], (bool) $snippet['async']);
+
+            return "\n{$marker}\n<script{$attrs}>\n{$code}\n</script>\n";
+        }
+
+        if ($type === 'html') {
+            return "\n{$marker}\n{$code}\n";
+        }
+
+        return null;
+    }
+
+    private function scriptAttributes(bool $defer, bool $async): string
     {
         $parts = [];
         if ($async) {
@@ -95,7 +105,7 @@ class SnippetInjector
             $parts[] = 'defer';
         }
 
-        return $parts === [] ? null : implode(' ', $parts);
+        return $parts === [] ? '' : ' ' . implode(' ', $parts);
     }
 
     private function insertBefore(string $html, string $needle, string $insert): string

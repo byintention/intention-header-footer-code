@@ -213,7 +213,198 @@
     min-height: 280px;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 13px;
+    line-height: 1.5;
     resize: vertical;
+}
+
+/* highlight.js overlay editor (CSS / JS types) */
+.hfc-hl-wrap {
+    position: relative;
+    min-height: 280px;
+}
+
+.hfc-hl-pre,
+.hfc-hl-textarea {
+    margin: 0;
+    padding: 0.75rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    tab-size: 2;
+    white-space: pre;
+    word-wrap: normal;
+    overflow: auto;
+    box-sizing: border-box;
+}
+
+.hfc-hl-pre {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: transparent;
+}
+
+.hfc-hl-pre code {
+    display: block;
+    font: inherit;
+    background: transparent;
+    padding: 0;
+}
+
+.hfc-hl-textarea {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    min-height: 280px;
+    color: transparent;
+    caret-color: var(--foreground, #111);
+    background: transparent;
+    border: 0;
+    outline: none;
+    resize: vertical;
+}
+
+/* highlight.js token colours — light + dark via admin CSS vars */
+.hljs {
+    color: var(--foreground, #24292e);
+}
+.hljs-comment,
+.hljs-quote {
+    color: var(--muted-foreground, #6a737d);
+    font-style: italic;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-meta .hljs-keyword {
+    color: #d73a49;
+}
+.hljs-string,
+.hljs-attr,
+.hljs-attribute,
+.hljs-template-variable {
+    color: #032f62;
+}
+.hljs-number,
+.hljs-literal,
+.hljs-variable,
+.hljs-template-tag {
+    color: #005cc5;
+}
+.hljs-title,
+.hljs-title.function_,
+.hljs-section {
+    color: #6f42c1;
+}
+.hljs-built_in,
+.hljs-type,
+.hljs-class .hljs-title,
+.hljs-selector-class,
+.hljs-selector-id,
+.hljs-selector-pseudo {
+    color: #e36209;
+}
+.hljs-meta,
+.hljs-doctag {
+    color: #735c0f;
+}
+.hljs-punctuation,
+.hljs-operator {
+    color: var(--foreground, #24292e);
+}
+
+@media (prefers-color-scheme: dark) {
+    .hljs-keyword,
+    .hljs-selector-tag,
+    .hljs-meta .hljs-keyword {
+        color: #ff7b72;
+    }
+    .hljs-string,
+    .hljs-attr,
+    .hljs-attribute,
+    .hljs-template-variable {
+        color: #a5d6ff;
+    }
+    .hljs-number,
+    .hljs-literal,
+    .hljs-variable,
+    .hljs-template-tag {
+        color: #79c0ff;
+    }
+    .hljs-title,
+    .hljs-title.function_,
+    .hljs-section {
+        color: #d2a8ff;
+    }
+    .hljs-built_in,
+    .hljs-type,
+    .hljs-class .hljs-title,
+    .hljs-selector-class,
+    .hljs-selector-id,
+    .hljs-selector-pseudo {
+        color: #ffa657;
+    }
+    .hljs-meta,
+    .hljs-doctag {
+        color: #e3b341;
+    }
+}
+
+html.dark .hljs-keyword,
+html.dark .hljs-selector-tag,
+html.dark .hljs-meta .hljs-keyword,
+.dark .hljs-keyword,
+.dark .hljs-selector-tag,
+.dark .hljs-meta .hljs-keyword {
+    color: #ff7b72;
+}
+html.dark .hljs-string,
+html.dark .hljs-attr,
+html.dark .hljs-attribute,
+html.dark .hljs-template-variable,
+.dark .hljs-string,
+.dark .hljs-attr,
+.dark .hljs-attribute,
+.dark .hljs-template-variable {
+    color: #a5d6ff;
+}
+html.dark .hljs-number,
+html.dark .hljs-literal,
+html.dark .hljs-variable,
+html.dark .hljs-template-tag,
+.dark .hljs-number,
+.dark .hljs-literal,
+.dark .hljs-variable,
+.dark .hljs-template-tag {
+    color: #79c0ff;
+}
+html.dark .hljs-title,
+html.dark .hljs-title.function_,
+html.dark .hljs-section,
+.dark .hljs-title,
+.dark .hljs-title.function_,
+.dark .hljs-section {
+    color: #d2a8ff;
+}
+html.dark .hljs-built_in,
+html.dark .hljs-type,
+html.dark .hljs-class .hljs-title,
+html.dark .hljs-selector-class,
+html.dark .hljs-selector-id,
+html.dark .hljs-selector-pseudo,
+.dark .hljs-built_in,
+.dark .hljs-type,
+.dark .hljs-class .hljs-title,
+.dark .hljs-selector-class,
+.dark .hljs-selector-id,
+.dark .hljs-selector-pseudo {
+    color: #ffa657;
+}
+html.dark .hljs-meta,
+html.dark .hljs-doctag,
+.dark .hljs-meta,
+.dark .hljs-doctag {
+    color: #e3b341;
 }
 
 .hfc-checks {
