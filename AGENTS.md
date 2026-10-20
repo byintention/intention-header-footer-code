@@ -28,6 +28,7 @@ Sitewide HTML / CSS / JS inserts with:
 - Target: frontend, backend (Admin SPA), or both
 - Location: header / footer (CSS always head)
 - Optional JS `defer` / `async`
+- Does not add any code to XML files
 
 Runtime data path (not in this repo): `user/data/intention-header-footer-code/snippets.yaml`.
 
