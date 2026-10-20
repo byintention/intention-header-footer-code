@@ -38,6 +38,10 @@ class SnippetInjector
 
     public function injectIntoOutput(string $html): string
     {
+        if (!$this->shouldInjectInto($html)) {
+            return $html;
+        }
+
         $header = '';
         $footer = '';
 
@@ -106,6 +110,33 @@ class SnippetInjector
         }
 
         return $parts === [] ? '' : ' ' . implode(' ', $parts);
+    }
+
+    /**
+     * Snippets are HTML. Leave XML, JSON, Markdown, and other formats unchanged,
+     * including when the document has no </head> or </body> to insert before.
+     */
+    private function shouldInjectInto(string $output): bool
+    {
+        if ($this->looksLikeXml($output)) {
+            return false;
+        }
+
+        $page = $this->grav['page'] ?? null;
+        if (!is_object($page) || !method_exists($page, 'templateFormat')) {
+            return true;
+        }
+
+        $format = strtolower(trim((string) $page->templateFormat()));
+
+        return $format === '' || $format === 'html';
+    }
+
+    private function looksLikeXml(string $output): bool
+    {
+        $start = ltrim($output, "\xEF\xBB\xBF \t\n\r");
+
+        return str_starts_with($start, '<?xml');
     }
 
     private function insertBefore(string $html, string $needle, string $insert): string

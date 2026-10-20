@@ -34,7 +34,7 @@ Keep admin styles in `assets/admin/page.css`. Prefer `hfc-*` class names with si
 
 ## Injection rules
 
-- **Frontend:** `onOutputGenerated` injects CSS/JS/HTML with `<!-- Added by Intention Header Footer Code plugin -->` above each block. Skip admin and API routes.
+- **Frontend:** `onOutputGenerated` injects CSS/JS/HTML with `<!-- Added by Intention Header Footer Code plugin -->` above each block. Skip admin and API routes. Skip non-HTML output (XML such as `/sitemap`, JSON, Markdown, and any body that starts with `<?xml`).
 - **Backend:** floating widget with `autoLoad: true`, `showFab: false`; inject at module load with the same HTML comment marker (Admin2 may not mount the element when FAB is hidden).
 - CSS always goes in `<head>` even if location is footer (document in UI help text).
 - No PHP snippet type. Snippets run as-is — keep the UI warning.

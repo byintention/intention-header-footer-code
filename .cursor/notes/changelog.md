@@ -1,3 +1,6 @@
+2026-10-20
+Skip frontend snippet injection on non-HTML output so sitemap XML stays valid.
+
 2026-09-24
 Renamed plugin slug, classes, API routes, and Admin Next files to intention-header-footer-code.
 
